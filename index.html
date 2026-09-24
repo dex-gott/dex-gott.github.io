@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+    content="GOTT: Object-centric Dexterous Manipulation with a Reusable Cross-Embodiment Primitive">
+  <meta name="keywords" content="Robotics, Cross-Embodiment, Dexterous Manipulation, Trajectory Tracking">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>
+    GOTT
+  </title>
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%A4%96</text></svg>">
+
+  <link href="https://fonts.googleapis.com/css2?family=Exo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <!-- MathJax for the reward equations -->
+  <script>
+    // Links each \class{rw-term rw-<key>}{...} group of the main reward equation
+    // to the <div class="reward-block" id="rw-<key>"> that explains it.
+    function initRewardHighlight() {
+      const terms = document.querySelectorAll('.rw-term');
+      terms.forEach(function (term) {
+        // MathJax mirrors the classes into its hidden assistive-MathML copy; skip it.
+        if (term.closest('mjx-assistive-mml')) return;
+
+        const key = Array.from(term.classList).find(function (c) {
+          return c.startsWith('rw-') && c !== 'rw-term';
+        });
+        const block = key && document.getElementById(key);
+        if (!block) return;
+
+        const setActive = function (on) {
+          term.classList.toggle('is-active', on);
+          block.classList.toggle('is-active', on);
+        };
+        term.addEventListener('mouseenter', function () { setActive(true); });
+        term.addEventListener('mouseleave', function () { setActive(false); });
+        block.addEventListener('mouseenter', function () { setActive(true); });
+        block.addEventListener('mouseleave', function () { setActive(false); });
+
+        // Clicking a term jumps to its explanation.
+        term.addEventListener('click', function () {
+          block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      });
+    }
+
+    window.MathJax = {
+      loader: { load: ['[tex]/html'] },
+      tex: {
+        packages: { '[+]': ['html'] },
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] },
+      startup: {
+        pageReady: function () {
+          return MathJax.startup.defaultPageReady().then(initRewardHighlight);
+        }
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+
+<section class="hero is-dark is-fullheight video" style="overflow: hidden; position:relative; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
+  <div class="hero-video" style="height: 100%; width: 177.77777778vh; min-width: 100%;min-height: 56.25vw;">
+    <video playsinline autoplay muted loop>
+      <source src="./static/videos/teaser/teaser.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="hero-video is-hidden-tablet is-inline-block-mobile"
+    style="height: 154.28571428vw; width: 100%; min-width:64.81481481vh;min-height:100%;">
+    <video playsinline autoplay muted loop>
+      <source src="./static/videos/teaser/teaser.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="overlay"></div>
+
+  <!-- Hero content: will be in the middle -->
+  <div class="hero-body">
+    <div class="container has-text-centered">
+      <h1 class="title is-1 publication-title is-size-1-mobile" style="font-size: 8rem;">
+        <span style="color: #ffffff;">GOTT</span>
+      </h1>
+      <h1 class="subtitle is-1 publication-title is-size-4-mobile" style="font-size: 4rem; color: #ffffff;">
+        Object-centric Dexterous Manipulation with <br> a Reusable Cross-Embodiment Primitive
+      </h1>
+      <div class="publication-links" style="margin-top: 1.5rem;">
+        <!-- TODO: replace the placeholder hrefs below -->
+        <a href="#" target="_blank" rel="noopener" class="hero-link-button">
+          <span class="icon"><i class="fas fa-file-pdf"></i></span>
+          <span>Paper</span>
+        </a>
+        <a href="#" target="_blank" rel="noopener" class="hero-link-button">
+          <span class="icon"><i class="ai ai-arxiv"></i></span>
+          <span>arXiv</span>
+        </a>
+        <a href="#" target="_blank" rel="noopener" class="hero-link-button">
+          <span class="icon"><i class="fab fa-github"></i></span>
+          <span>Code</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="hero">
+  <!-- TOC Toggle Button -->
+  <button class="toc-toggle" id="tocToggle" title="Table of Contents">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="12" x2="15" y2="12"></line>
+      <line x1="3" y1="18" x2="18" y2="18"></line>
+    </svg>
+  </button>
+
+  <div class="toc" id="tocPanel">
+    <h3>Content</h3>
+    <hr>
+    <ul>
+      <li><a href="#whole-pipeline">Whole Pipeline</a></li>
+      <li><a href="#trajectory-source">Variable Trajectory Source</a></li>
+      <li><a href="#manipulation-tasks">Manipulation Tasks</a></li>
+      <li><a href="#cross-embodiment-grasping">Cross-Embodiment Grasping</a></li>
+      <li><a href="#closed-loop-robustness">Closed-Loop Robustness</a></li>
+      <li><a href="#allegro-v5-transfer">Allegro V5 Transfer</a></li>
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#reward-design">Reward Design</a></li>
+    </ul>
+  </div>
+  <span id="main-title" style="display:none;"></span>
+</section>
+
+
+<section class="section" id="whole-pipeline">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-2" style="text-align: left; padding-bottom: 10px;">Whole Pipeline</h2>
+
+        <div style="max-width: 1000px; margin: 20px auto 0; text-align: center;">
+
+          <!-- Stage strip: highlighted entry follows the clip's currentTime. -->
+          <div class="pipeline-stages" id="pipelineStages">
+            <div class="pipeline-stage" data-start="0"><span class="pipeline-stage-num">1</span>Capture Human Video</div>
+            <span class="pipeline-stage-arrow">&rarr;</span>
+            <div class="pipeline-stage" data-start="6.3"><span class="pipeline-stage-num">2</span>Extract Object Trajectory</div>
+            <span class="pipeline-stage-arrow">&rarr;</span>
+            <div class="pipeline-stage" data-start="12.6"><span class="pipeline-stage-num">3</span>Deploy on Robot</div>
+          </div>
+
+          <video id="pipelineVideo" autoplay muted loop playsinline controls src="./static/videos/pipeline/iron_cloth_concat.mp4" width="78%" style="border-radius:10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></video>
+        </div>
+
+        <p class="figure-caption non-gallery-caption">
+          <b>Whole Pipeline:</b> An end-to-end run of GOTT on the ironing task, from object-trajectory generation to closed-loop dexterous execution.
+        </p>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="trajectory-source">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-2" style="text-align: left; padding-bottom: 10px;">Variable Trajectory Source</h2>
+
+        <div style="max-width: 1400px; margin: 20px auto 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 24px;">
+
+          <div style="text-align: center; width: calc((100% - 48px) / 3);">
+            <h3 class="title is-5" style="margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; color: #333;">Generative Model</h3>
+            <video autoplay muted loop playsinline controls src="./static/videos/traj_source/genmodel.mp4" width="100%" style="border-radius:10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></video>
+          </div>
+
+          <div style="text-align: center; width: calc((100% - 48px) / 3);">
+            <h3 class="title is-5" style="margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; color: #333;">Human Demonstration</h3>
+            <video autoplay muted loop playsinline controls src="./static/videos/traj_source/humandemo.mp4" width="100%" style="border-radius:10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></video>
+          </div>
+
+          <div style="text-align: center; width: calc((100% - 48px) / 3);">
+            <h3 class="title is-5" style="margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; color: #333;">Keypoint Planning</h3>
+            <video autoplay muted loop playsinline controls src="./static/videos/traj_source/keypoint_mp.mp4" width="100%" style="border-radius:10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></video>
+          </div>
+        </div>
+
+        <p class="figure-caption non-gallery-caption">
+          <b>Variable Trajectory Source:</b> The object trajectory that drives GOTT can come from any source &mdash; a generative model, a human demonstration, or keypoint-based motion planning &mdash; and the same pipeline executes it without any adaption.
+        </p>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="manipulation-tasks">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-2" style="text-align: left; padding-bottom: 10px;">Autonomous Dexterous Manipulation Tasks</h2>
+
+        <div style="max-width: 1400px; margin: 20px auto 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 24px;">
+
+          <div style="text-align: center; width: calc((100% - 24px) / 2);">
+            <h3 class="title is-5" style="margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; color: #333;">Erase Blackboard</h3>
+            <video autoplay muted loop playsinline controls src="./static/videos/general_tasks/erase_blackboard.mp4" width="100%" style="border-radius:10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></video>
+          </div>
+
+          <div style="text-align: center; width: calc((100% - 24px) / 2);">
+            <h3 class="title is-5" style="margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; color: #333;">Iron Cloth</h3>
+            <video autoplay muted loop playsinline controls src="./static/videos/general_tasks/iron_cloth.mp4" width="100%" style="border-radius:10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></video>
+          </div>
+
+          <div style="text-align: center; width: calc((100% - 24px) / 2);">
+            <h3 class="title is-5" style="margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; color: #333;">Pour Yellow Mustard</h3>
+            <video autoplay muted loop playsinline controls src="./static/videos/general_tasks/pour_yellow_mustard.mp4" width="100%" style="border-radius:10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></video>
+          </div>
+
+          <div style="text-align: center; width: calc((100% - 24px) / 2);">
+            <h3 class="title is-5" style="margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; color: #333;">Stand Cleanser Up</h3>
+            <video autoplay muted loop playsinline controls src="./static/videos/general_tasks/stand_cleanser_up.mp4" width="100%" style="border-radius:10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></video>
+          </div>
+
+          <div style="text-align: center; width: calc((100% - 24px) / 2);">
+            <h3 class="title is-5" style="margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; color: #333;">Use Drill</h3>
+            <video autoplay muted loop playsinline controls src="./static/videos/general_tasks/use_drill.mp4" width="100%" style="border-radius:10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></video>
+          </div>
+
+          <div style="text-align: center; width: calc((100% - 24px) / 2);">
+            <h3 class="title is-5" style="margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; color: #333;">Use Hammer</h3>
+            <video autoplay muted loop playsinline controls src="./static/videos/general_tasks/use_hammer.mp4" width="100%" style="border-radius:10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></video>
+          </div>
+        </div>
+
+        <p class="figure-caption non-gallery-caption">
+          <b>Autonomous Dexterous Manipulation Tasks:</b> GOTT executes a diverse set of dexterous tasks &mdash; whiteboard erasing, ironing, pouring, standing objects upright, and tool use &mdash; from a single object-trajectory interface.
+        </p>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="cross-embodiment-grasping">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3" style="text-align: left; padding-bottom: 0px;" id="cross-embodiment-grasping-heading">Cross-Embodiment Zero-shot Grasping</h2>
+
+        <!-- Object selector card grid (label-only, single row, 7 objects) -->
+        <div class="object-card-grid object-card-grid--text" style="grid-template-columns: repeat(7, 1fr);">
+          <div class="object-card active" data-object="4"><span>"power drill"</span></div>
+          <div class="object-card" data-object="6"><span>"toy drill"</span></div>
+          <div class="object-card" data-object="2"><span>"meat can"</span></div>
+          <div class="object-card" data-object="3"><span>"plastic corn"</span></div>
+          <div class="object-card" data-object="5"><span>"scrub brush"</span></div>
+          <div class="object-card" data-object="1"><span>"drink bottle"</span></div>
+          <div class="object-card" data-object="7"><span>"water bottle"</span></div>
+        </div>
+
+        <!-- Video display area: one row, 3 embodiments per selected object -->
+        <h3 id="objectVideoLabel" class="title is-4" style="margin-bottom: 0; margin-top: 16px; font-size: 1.6rem; font-weight: 700; color: #333; font-family: 'Computer Modern Typewriter', monospace; text-align: center;">"power drill"</h3>
+
+        <div class="video-gallery-section" id="objectGallerySection1">
+          <div class="video-gallery-container">
+            <div class="video-gallery" id="videoGalleryObject1">
+              <div class="gallery-video-item">
+                <video id="objectVideo1" class="gallery-video" src="./static/videos/grasping/power_drill_fr_sh1.mp4" autoplay muted playsinline loop controls></video>
+                <div class="gallery-video-caption">Franka Arm + Sharpa Hand</div>
+              </div>
+              <div class="gallery-video-item">
+                <video id="objectVideo2" class="gallery-video" src="./static/videos/grasping/power_drill_fr_xh1.mp4" autoplay muted playsinline loop controls></video>
+                <div class="gallery-video-caption">Franka Arm + XHand</div>
+              </div>
+              <div class="gallery-video-item">
+                <video id="objectVideo3" class="gallery-video" src="./static/videos/grasping/power_drill_tj_xh1.mp4" autoplay muted playsinline loop controls></video>
+                <div class="gallery-video-caption">Tianji Arm + XHand</div>
+              </div>
+            </div>
+          </div>
+          <div class="gallery-caption-container">
+              <div class="gallery-nav-controls">
+                  <button class="gallery-nav left" id="scrollLeftBtnObject1">&lt;</button>
+                  <button class="gallery-nav right" id="scrollRightBtnObject1">&gt;</button>
+              </div>
+              <p class="figure-caption gallery-caption">
+                  <b>Cross-embodiment zero-shot grasping:</b> The same policy grasps each object across three hand–arm embodiments without any per-embodiment retraining.
+              </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3" style="text-align: left; padding-bottom: 0px;" id="closed-loop-robustness">Closed-Loop Policy Robustness</h2>
+
+        <!-- Two-col layout: left = large retry video, right = 2x2 disturbance grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; max-width: 1400px; margin: 0.75rem auto 0;">
+          <div style="text-align: center; display: flex; flex-direction: column;">
+            <h3 class="title is-5" style="margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; color: #333;">Retry After Failure</h3>
+            <video src="./static/videos/robustness/swab_retry.mp4" autoplay muted playsinline loop controls style="width: 100%; flex: 1; min-height: 0; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);"></video>
+          </div>
+          <div style="display: flex; flex-direction: column;">
+            <h3 class="title is-5" style="margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; color: #333; text-align: center;">Robust to Human Disturbance</h3>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 12px; flex: 1;">
+              <video src="./static/videos/robustness/robust1.mp4" autoplay muted playsinline loop controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; box-shadow: 0 3px 9px rgba(0, 0, 0, 0.15);"></video>
+              <video src="./static/videos/robustness/robust2.mp4" autoplay muted playsinline loop controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; box-shadow: 0 3px 9px rgba(0, 0, 0, 0.15);"></video>
+              <video src="./static/videos/robustness/robust3.mp4" autoplay muted playsinline loop controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; box-shadow: 0 3px 9px rgba(0, 0, 0, 0.15);"></video>
+              <video src="./static/videos/robustness/robust4.mp4" autoplay muted playsinline loop controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; box-shadow: 0 3px 9px rgba(0, 0, 0, 0.15);"></video>
+            </div>
+          </div>
+        </div>
+
+        <p class="figure-caption" style="text-align: center; margin-top: 14px;">
+            <b>Closed-loop policy robustness:</b> The policy recovers after a failed grasp (left) and remains stable under human disturbance (right).
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3" style="text-align: left; padding-bottom: 10px;" id="allegro-v5-transfer">Zero-shot Transfer to Allegro V5</h2>
+
+        <!-- Two-col layout: left = large pick-and-place, right = 2x2 grasping grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: stretch; max-width: 1400px; margin: 0 auto;">
+          <div style="text-align: center; display: flex; flex-direction: column;">
+            <h3 class="title is-5" style="margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; color: #333;">Pick-and-Place</h3>
+            <video src="./static/videos/allergov5/allergo_pnp.mp4" autoplay muted playsinline loop controls style="width: 100%; flex: 1; min-height: 0; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);"></video>
+          </div>
+          <div style="display: flex; flex-direction: column;">
+            <h3 class="title is-5" style="margin-bottom: 8px; font-size: 1.3rem; font-weight: 700; color: #333; text-align: center;">Grasping</h3>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 12px; flex: 1;">
+              <video src="./static/videos/allergov5/allergo_lift1.mp4" autoplay muted playsinline loop controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; box-shadow: 0 3px 9px rgba(0, 0, 0, 0.15);"></video>
+              <video src="./static/videos/allergov5/allergo_lift2.mp4" autoplay muted playsinline loop controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; box-shadow: 0 3px 9px rgba(0, 0, 0, 0.15);"></video>
+              <video src="./static/videos/allergov5/allergo_lift3.mp4" autoplay muted playsinline loop controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; box-shadow: 0 3px 9px rgba(0, 0, 0, 0.15);"></video>
+              <video src="./static/videos/allergov5/allergo_lift4.mp4" autoplay muted playsinline loop controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; box-shadow: 0 3px 9px rgba(0, 0, 0, 0.15);"></video>
+            </div>
+          </div>
+        </div>
+
+        <p class="figure-caption" style="text-align: center; margin-top: 14px;">
+            <b>Zero-shot transfer to Allegro V5:</b> Our policy generalizes to a new hand for both pick-and-place (left) and grasping (right) without any retraining.
+            <br><em>Note: the policy is trained on Sharpa Hand, XHand, Allegro V4, not including Allegro V5.</em>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="abstract">
+  <div class="container">
+    <!-- Abstract. -->
+    <h2 class="title is-2" style="text-align: left;" id="abstract-title">Abstract</h2>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div class="content has-text-justified">
+          <p>
+            Foundation models and large-scale human data provide rich sources of manipulation intent, but translating this intent into multi-fingered robot motion remains difficult. A key bottleneck is the lack of general-purpose low-level skills for dexterous hands, which must coordinate high-dimensional actions and establish reliable contact across tasks and embodiments. In this paper, we propose General Object Trajectory Tracking (<span style="color: #0775F7; font-weight: 600;">GOTT</span>), a framework that uses the object trajectory as a robot-agnostic interface for dexterous manipulation. Given a rigid object mesh and a desired object motion, <span style="color: #0775F7; font-weight: 600;">GOTT</span> converts it into executable robot behavior through three stages: future-aware motion planning, learned contact acquisition, and object-pose-conditioned end-effector tracking. This decomposition allows the system to reason about long-horizon kinematic feasibility while using a unified contact acquisition controller to handle the contact-rich transition from init grasp to stable grasp. We evaluate <span style="color: #0775F7; font-weight: 600;">GOTT</span> in simulation and real-world experiments across multiple hands, objects, and tasks. We show that <span style="color: #0775F7; font-weight: 600;">GOTT</span> can execute diverse dexterous manipulation behaviors, including object picking across hand embodiments, tool use, pouring, whiteboard erasing, and trash cleanup.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="reward-design">
+  <div class="container">
+    <!-- Reward design. -->
+    <h2 class="title is-2" style="text-align: left;" id="reward-design-title">Reward Design</h2>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div class="content has-text-justified">
+          <p>
+            The per-step reward used to train the contact-acquisition controller is: <i>(click each term for more details!)</i>
+          </p>
+          <div style="overflow-x: auto; overflow-y: hidden;">
+            \[
+              r \;=\; \class{rw-term rw-dist}{\underbrace{w_d\,r_{\mathrm{dist}}}_{\textstyle\text{distance}}}
+                \;+\; \class{rw-term rw-contact}{\underbrace{w_c\,r_{\mathrm{contact}}}_{\textstyle\text{contact}}}
+                \;+\; \class{rw-term rw-lift}{\underbrace{w_l\,r_{\mathrm{lift}}}_{\textstyle\text{lifting}}}
+                \;+\; \class{rw-term rw-obj}{\underbrace{w_o^{p}\,r^{p}_{\mathrm{obj}} + w_o^{r}\,r^{r}_{\mathrm{obj}}}_{\textstyle\text{object stability}}},
+            \]
+          </div>
+          <p>
+            where all rotation distances $\Delta\theta$ are the geodesic quaternion angle
+            $\Delta\theta = 2\arccos(|\langle q_1, q_2\rangle|)$. Reward weights are listed in the table below.
+          </p>
+
+          <div class="reward-block" id="rw-dist">
+          <p>
+            <strong>Distance reward $r_{\mathrm{dist}}$.</strong> A negative weighted sum of per-link link-to-surface
+            distances, each clipped at $0.1$&nbsp;m:
+          </p>
+          \[
+            r_{\mathrm{dist}} = -\sum_{l} \omega_l \, \min\!\big(\lVert \mathbf{a}_l \rVert,\, 0.1\big),
+          \]
+          <p>
+            with per-link weights assigned in raw form as $\omega_{\text{thumb-tip}} = 8$,
+            $\omega_{\text{other fingertips}} = 4$, $\omega_{\text{palm}} = 0$, and $\omega_l = 1$ for all remaining
+            links, then normalised to sum to $1$ over the active links. In cross-embodiment the weights are masked to
+            active links and re-normalised per environment. The link-to-surface distance $\lVert \mathbf{a}_l \rVert$ is
+            defined as follows: for each canonical link $l$ at world position $\mathbf{p}_l$, $\mathbf{a}_l$ is the
+            vector to its nearest point on the object's surface point cloud (the $\arg\min$ over $M = 512$ sampled
+            points), and $\lVert \mathbf{a}_l \rVert$ is the $L2$ norm. The point cloud is stored object-local and
+            transformed to world with the tracked object pose.
+          </p>
+          </div>
+
+          <div class="reward-block" id="rw-contact">
+          <p>
+            <strong>Contact reward $r_{\mathrm{contact}}$.</strong> Encourages both thumb contact and an opposing grasp,
+            in which the thumb and at least one non-thumb finger simultaneously contact the object:
+          </p>
+          \[
+            r_{\mathrm{contact}} = \mathbf{1}[\text{thumb in contact}] + \mathbf{1}[\text{is_grasping}],
+          \]
+          <p>
+            where a finger is considered to be &ldquo;in contact&rdquo; if its contact force with the object exceeds a
+            threshold $\epsilon_{\mathrm{contact}} = 0.05$&nbsp;N, and
+            $\text{is_grasping} = (\text{thumb in contact}) \wedge (\exists\,\text{non-thumb in contact})$.
+          </p>
+          </div>
+
+          <div class="reward-block" id="rw-lift">
+          <p>
+            <strong>Lifting reward $r_{\mathrm{lift}}$.</strong> A grasp-gated, scaled reward proportional to the
+            object's height above its post-reset position:
+          </p>
+          \[
+            r_{\mathrm{lift}} = \mathbf{1}[\text{is_grasping}] \cdot \mathrm{clip}\!\big(100\,\Delta h,\ 0,\ 100\,h_{\mathrm{thr}}\big),
+            \quad \Delta h = \max(0,\ z - z_0),
+          \]
+          <p>
+            where $z$ is the object's current height, $z_0$ is its height immediately after reset, and
+            $h_{\mathrm{thr}} = 0.05$&nbsp;m (so the clip ceiling is $5.0$). The reward is gated by
+            $\mathbf{1}[\text{is\_grasping}]$, ensuring that the policy only earns lifting reward once the object is
+            actually grasped, and is clipped to prevent runaway reward when the object is thrown upward.
+          </p>
+          </div>
+
+          <div class="reward-block" id="rw-obj">
+          <p>
+            <strong>Object stability reward $r_{\mathrm{obj}}$.</strong> Exponential &ldquo;stay-put&rdquo; bonuses on
+            planar displacement and rotation from the post-reset pose:
+          </p>
+          \[
+            r^{p}_{\mathrm{obj}} = e^{-10\,\lVert \Delta \mathbf{xy} \rVert},
+            \qquad
+            r^{r}_{\mathrm{obj}} = e^{-\Delta\theta(\mathbf{q}, \mathbf{q}_0)},
+          \]
+          <p>
+            where $\Delta \mathbf{xy} \in \mathbb{R}^2$ is the planar displacement between the object's current $xy$
+            position and its post-reset position, and $\Delta\theta(\mathbf{q}, \mathbf{q}_0)$ is the rotation angle
+            between the object's current orientation $\mathbf{q}$ and its post-reset orientation $\mathbf{q}_0$. These
+            rewards discourage the policy from sliding or rotating the object during the contact-acquisition phase,
+            which we found is important for stable real-world execution.
+          </p>
+          </div>
+
+          <p>
+            <strong>Curriculum / annealing.</strong> The object-stability weights are linearly annealed from an initial
+            value to the final value over $T_{\mathrm{cur}}$ per-environment control steps:
+            $w(t) = w_{\mathrm{init}}(1 - \rho) + w_{\mathrm{final}}\,\rho$, $\rho = \min(1,\ t / T_{\mathrm{cur}})$.
+            We anneal $w_o^{p}, w_o^{r}$ from $w_{\mathrm{init}} = 2.0$ to $w_{\mathrm{final}} = 10.0$ over
+            $T_{\mathrm{cur}} = 10^5$ steps. The distance, contact, and lifting weights are not annealed.
+          </p>
+        </div>
+
+        <div class="content" style="margin-top: 2.5rem;">
+          <p class="has-text-centered" style="margin-bottom: 0.75rem;"><strong>Table 1: Reward weights.</strong></p>
+          <div class="table-container">
+            <table class="table is-fullwidth is-hoverable" style="max-width: 640px; margin: 0 auto;">
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Term</th>
+                  <th class="has-text-centered">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>$w_d$</td>
+                  <td>distance</td>
+                  <td class="has-text-centered">$16.0$</td>
+                </tr>
+                <tr>
+                  <td>$w_c$</td>
+                  <td>contact</td>
+                  <td class="has-text-centered">$4.0$</td>
+                </tr>
+                <tr>
+                  <td>$w_o^{p}$</td>
+                  <td>object position stability</td>
+                  <td class="has-text-centered">$10.0$ (init. $2.0$)</td>
+                </tr>
+                <tr>
+                  <td>$w_o^{r}$</td>
+                  <td>object rotation stability</td>
+                  <td class="has-text-centered">$10.0$ (init. $2.0$)</td>
+                </tr>
+                <tr>
+                  <td>$w_l$</td>
+                  <td>lifting</td>
+                  <td class="has-text-centered">$1.0$</td>
+                </tr>
+                <tr>
+                  <td>$T_{\mathrm{cur}}$</td>
+                  <td>annealing steps</td>
+                  <td class="has-text-centered">$10^5$</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+      <div class="container">
+        <div class="content has-text-centered">
+          <p><em>Videos on this page have been compressed for faster loading.</em></p>
+          <p>Page template borrowed from <a href="https://hero-humanoid.github.io"><span class="dnerf">HERO</span></a>.</p>
+        </div>
+      </div>
+    </footer>
+
+  <!-- JavaScript for TOC Scroll Behavior -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Whole Pipeline: highlight the stage matching the clip's playback time.
+      // Reading currentTime (rather than running our own timer) keeps the strip
+      // correct through looping, scrubbing and pausing.
+      (function() {
+        var stagesRoot = document.getElementById('pipelineStages');
+        var pipelineVideo = document.getElementById('pipelineVideo');
+        if (!stagesRoot || !pipelineVideo) return;
+
+        // data-start holds each stage's exact cut time in the clip (30 fps).
+        // The highlight is held back a couple of frames so the new stage is
+        // already on screen when the strip switches.
+        var FPS = 30;
+        var LAG_FRAMES = 2;
+
+        var stages = Array.prototype.slice.call(stagesRoot.querySelectorAll('.pipeline-stage'));
+        var cuts = stages.map(function(el) { return parseFloat(el.getAttribute('data-start')); });
+        var switchAt = cuts.map(function(t) { return t + LAG_FRAMES / FPS; });
+        var current = -1;
+
+        function indexAt(t) {
+          var i = 0;
+          for (var k = 0; k < switchAt.length; k++) if (t >= switchAt[k]) i = k;
+          return i;
+        }
+
+        function paint(i) {
+          if (i === current) return;
+          current = i;
+          stages.forEach(function(el, k) {
+            el.classList.toggle('is-active', k === i);
+            el.classList.toggle('is-done', k < i);
+          });
+        }
+
+        paint(0);
+        var sync = function() { paint(indexAt(pipelineVideo.currentTime)); };
+
+        // Per-presented-frame where the browser supports it, otherwise per
+        // animation frame: 'timeupdate' alone only fires ~4x a second, which
+        // would make the switch land several frames off the cut.
+        if (typeof pipelineVideo.requestVideoFrameCallback === 'function') {
+          var onFrame = function(now, meta) {
+            paint(indexAt(meta.mediaTime));
+            pipelineVideo.requestVideoFrameCallback(onFrame);
+          };
+          pipelineVideo.requestVideoFrameCallback(onFrame);
+        } else {
+          var tick = function() { sync(); requestAnimationFrame(tick); };
+          requestAnimationFrame(tick);
+        }
+        pipelineVideo.addEventListener('timeupdate', sync);
+        pipelineVideo.addEventListener('seeked', sync);
+
+        // Clicking a stage jumps the clip to that stage.
+        stages.forEach(function(el, k) {
+          el.addEventListener('click', function() {
+            pipelineVideo.currentTime = cuts[k];
+            pipelineVideo.play();
+            paint(k);
+          });
+        });
+      })();
+
+      // Object selector (Cross-embodiment grasping): one row, 3 embodiments per object.
+      (function() {
+        var objectSection = document.getElementById('cross-embodiment-grasping');
+        if (!objectSection) return;
+        var objectCards = objectSection.querySelectorAll('.object-card');
+        var objectVideoLabel = document.getElementById('objectVideoLabel');
+        var objectVideos = [
+          document.getElementById('objectVideo1'),
+          document.getElementById('objectVideo2'),
+          document.getElementById('objectVideo3')
+        ];
+
+        // Each video file is named <object>_<embodiment>1.mp4.
+        var objectNames = {
+          '1': 'drink_bottle', '2': 'meat_can', '3': 'plastic_corn',
+          '4': 'power_drill', '5': 'scrub_brush', '6': 'toy_drill',
+          '7': 'water_bottle'
+        };
+        var embodiments = ['fr_sh', 'fr_xh', 'tj_xh'];
+
+        objectCards.forEach(function(card) {
+          card.addEventListener('click', function() {
+            objectCards.forEach(function(c) { c.classList.remove('active'); });
+            card.classList.add('active');
+
+            var obj = card.getAttribute('data-object');
+            var name = objectNames[obj];
+            objectVideoLabel.textContent = card.querySelector('span').textContent;
+
+            objectVideos.forEach(function(v, i) {
+              v.src = './static/videos/grasping/' + name + '_' + embodiments[i] + '1.mp4';
+              v.load();
+              v.play();
+            });
+          });
+        });
+      })();
+
+      const toc = document.getElementById('tocPanel');
+      const tocToggle = document.getElementById('tocToggle');
+      const mainTitle = document.getElementById('main-title');
+      let tocOpen = false; // collapsed by default; user clicks toggle to open
+
+      if (toc && tocToggle && mainTitle) {
+        // Show/hide toggle button based on scroll position
+        function checkToggleVisibility() {
+          const titleRect = mainTitle.getBoundingClientRect();
+          if (titleRect.top <= 100) {
+            tocToggle.classList.add('visible');
+            // Open TOC + activate button when first shown
+            if (tocOpen) {
+              toc.classList.add('open');
+              tocToggle.classList.add('active');
+            }
+          } else {
+            tocToggle.classList.remove('visible');
+            toc.classList.remove('open');
+            tocToggle.classList.remove('active');
+          }
+        }
+
+        // Toggle TOC on button click
+        tocToggle.addEventListener('click', function() {
+          tocOpen = !tocOpen;
+          toc.classList.toggle('open', tocOpen);
+          tocToggle.classList.toggle('active', tocOpen);
+        });
+
+        // TOC links just navigate; panel stays open
+
+
+        window.addEventListener('scroll', checkToggleVisibility);
+        checkToggleVisibility();
+      }
+
+      // Active section highlighting in TOC
+      const tocLinks = document.querySelectorAll('.toc a');
+      const sections = [];
+      
+      // Collect all sections that have corresponding TOC links
+      tocLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          const sectionId = href.substring(1);
+          const section = document.getElementById(sectionId);
+          if (section) {
+            sections.push({
+              id: sectionId,
+              element: section,
+              link: link
+            });
+          }
+        }
+      });
+
+      function updateActiveTocLink() {
+        // Get current scroll position (with offset from top)
+        const scrollPosition = window.scrollY + 150; // 150px offset to trigger earlier
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        
+        // Find the current section
+        let currentSection = null;
+        
+        // Check if we're at the bottom of the page
+        if (window.scrollY + windowHeight >= documentHeight - 50) {
+          // If at bottom, highlight the last section
+          currentSection = sections[sections.length - 1];
+        } else {
+          // Find the section that's currently in view
+          for (let i = 0; i < sections.length; i++) {
+            const section = sections[i];
+            const rect = section.element.getBoundingClientRect();
+            const sectionTop = rect.top + window.scrollY;
+            const sectionBottom = sectionTop + rect.height;
+            
+            // Check if the top of viewport is within this section (with offset)
+            if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+              currentSection = section;
+              break;
+            }
+          }
+          
+          // If no section found in viewport, use the last section that's above current position
+          if (!currentSection) {
+            for (let i = sections.length - 1; i >= 0; i--) {
+              const section = sections[i];
+              const sectionTop = section.element.getBoundingClientRect().top + window.scrollY;
+              if (sectionTop <= scrollPosition) {
+                currentSection = section;
+                break;
+              }
+            }
+          }
+        }
+
+        // Update active class on TOC links
+        tocLinks.forEach(link => {
+          link.classList.remove('active');
+        });
+
+        if (currentSection) {
+          currentSection.link.classList.add('active');
+        }
+      }
+
+      // Update on scroll
+      window.addEventListener('scroll', updateActiveTocLink);
+      
+      // Update on load
+      updateActiveTocLink();
+    });
+  </script>
+
+  <!-- JavaScript for Video Gallery Navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const galleryInner = document.getElementById('videoGalleryObject1');
+      const scrollLeftBtn = document.getElementById('scrollLeftBtnObject1');
+      const scrollRightBtn = document.getElementById('scrollRightBtnObject1');
+
+      if (galleryInner && scrollLeftBtn && scrollRightBtn) {
+        const galleryContainer = galleryInner.parentElement;
+        scrollLeftBtn.addEventListener('click', function() {
+          galleryContainer.scrollBy({ left: -300, behavior: 'smooth' });
+        });
+        scrollRightBtn.addEventListener('click', function() {
+          galleryContainer.scrollBy({ left: 300, behavior: 'smooth' });
+        });
+      }
+    });
+  </script>
+
+</body>
+
+</html>

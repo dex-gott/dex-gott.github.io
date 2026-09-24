@@ -1,0 +1,642 @@
+body {
+  font-family: 'Exo', 'Noto Sans', sans-serif;
+}
+
+/* TOC Toggle Button */
+.toc-toggle {
+  position: fixed;
+  top: 100px;
+  right: 30px;
+  z-index: 1001;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  color: #0775F7;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateX(10px);
+}
+
+.toc-toggle.visible {
+  display: flex;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toc-toggle:hover {
+  background: rgba(7, 117, 247, 0.12);
+  box-shadow: 0 4px 14px rgba(7, 117, 247, 0.2);
+  transform: scale(1.05);
+}
+
+.toc-toggle.active {
+  background: #0775F7;
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(7, 117, 247, 0.35);
+}
+
+.toc-toggle.active:hover {
+  background: #d44a32;
+}
+
+/* TOC - Right side glassmorphism card */
+.toc {
+  font-family: 'Exo', sans-serif;
+  position: fixed;
+  top: 100px;
+  right: 30px;
+  z-index: 999;
+  width: 300px;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  padding: 20px 0;
+  box-sizing: border-box;
+  /* Hidden by default */
+  opacity: 0;
+  transform: translateX(20px);
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  /* Glassmorphism */
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.toc::-webkit-scrollbar {
+  display: none;
+}
+
+.toc.open {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.toc h3 {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #0775F7;
+  margin: 0 20px 8px;
+  padding: 0;
+}
+
+.toc hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(to right, #0775F7, transparent);
+  margin: 0 20px 10px;
+}
+
+.toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc li {
+  margin: 0;
+}
+
+.toc a {
+  text-decoration: none;
+  color: #555;
+  font-size: 14px;
+  font-weight: 500;
+  display: block;
+  padding: 5px 20px;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+  line-height: 1.45;
+}
+
+.toc a:hover {
+  color: #0775F7;
+  background: rgba(7, 117, 247, 0.05);
+  text-decoration: none;
+  border-left-color: rgba(7, 117, 247, 0.3);
+}
+
+.toc a.active {
+  color: #0775F7;
+  font-weight: 600;
+  background: rgba(7, 117, 247, 0.08);
+  border-left-color: #0775F7;
+}
+
+
+.dnerf {
+  font-variant: small-caps;
+}
+
+.publication-title {
+  font-family: 'Exo', sans-serif;
+}
+
+.publication-authors {
+  font-family: 'Exo', sans-serif;
+}
+
+.publication-authors a {
+  color: #2563EB !important;
+  font-weight: 500;
+}
+
+.publication-authors a:hover {
+  text-decoration: underline;
+}
+
+.author-block {
+  display: inline-block;
+}
+
+/* Author names sit on the dark video hero, so the default blue link colour is
+   too low-contrast there. */
+.publication-authors a.author-link {
+  color: #ffffff !important;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.publication-authors a.author-link:hover {
+  text-decoration: none;
+  border-bottom-color: #ffffff;
+}
+
+/* Pill buttons in the hero (Paper / arXiv / Code). */
+.hero-link-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.35rem 0.4rem;
+  padding: 0.6rem 1.5rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff !important;
+  font-family: 'Exo', sans-serif;
+  font-size: 1.1rem;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.hero-link-button:hover {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+}
+
+.hero-link-button .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay {
+position: absolute;
+top: 0;
+right: 0;
+bottom: 0;
+left: 0;
+background-color: rgba(0, 0, 0, 0.4); /* 40% opacity black */
+z-index: 1; /* Make sure it's behind the text */
+transition: opacity 1.0s;
+}
+  
+.hero-body,
+.hero-head,
+.hero-foot {
+  z-index: 2; /* Ensure text is above the overlay */
+  transition: opacity 1.0s;
+}
+
+/* --- Video Gallery Styles (adapted from VideoMimic) --- */
+
+/* Reduce spacing between sections */
+.section {
+    padding: 1.5rem 1.5rem; /* Reduced from Bulma's default 3rem 1.5rem */
+}
+
+/* Justify align text in sections */
+.section p {
+    text-align: justify;
+}
+
+/* Constrain section titles to align with gallery containers */
+.section .container .column.is-full-width > h2.title,
+.section .container > h2.title {
+    max-width: 1150px; /* Match gallery container width */
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 20px; /* Match gallery padding */
+    padding-right: 20px; /* Match gallery padding */
+    white-space: nowrap; /* Prevent title from wrapping to multiple lines */
+}
+
+/* Section title styling - left accent border with subtle gradient */
+.section .container .column.is-full-width > h2.title,
+.section .container > h2.title {
+    background: linear-gradient(135deg, rgba(7, 117, 247, 0.08) 0%, rgba(7, 117, 247, 0.02) 100%) !important;
+    color: #1a1a1a !important;
+    display: block !important;
+    padding: 14px 20px !important;
+    margin-left: calc((100% - 1150px) / 2 + 20px) !important; /* Align with gallery videos */
+    text-align: left !important; /* Override inline styles */
+    border-left: 4px solid #0775F7 !important;
+    border-radius: 0 8px 8px 0 !important;
+    letter-spacing: 0.02em !important;
+}
+
+/* For screens smaller than 1150px, just use 20px margin */
+@media (max-width: 1150px) {
+    .section .container .column.is-full-width > h2.title,
+    .section .container > h2.title {
+        margin-left: 20px !important;
+    }
+}
+
+/* Section title size override */
+.section .container .column.is-full-width > h2.title.is-2,
+.section .container .column.is-full-width > h2.title.is-3,
+.section .container > h2.title,
+.section .container .column > h2.title.is-2 {
+    font-size: 1.5rem !important;
+}
+
+
+/* New outer wrapper for the whole section */
+.video-gallery-section {
+    margin-top: 0.75rem; /* Match Bulma's default .columns margin-top */
+    margin-bottom: 20px; /* Reduced space below the gallery section */
+    width: 100vw; /* Make the section span the full viewport width */
+    position: relative; /* Establishes a positioning context, good practice with calc for margins */
+    margin-left: calc((100% - 100vw) / 2); /* Calculates the negative margin to align left edge with viewport */
+    box-sizing: border-box; /* Ensures padding/border don't add to the 100vw width */
+}
+
+/* Container for the scrollable videos */
+.video-gallery-container {
+  max-width: 1150px; /* Maximum width for large screens */
+  margin-left: auto; /* Center on small screens */
+  margin-right: auto; /* Center on small screens */
+  padding: 0 20px; /* Add padding on sides for small screens */
+  overflow-x: auto; /* Enable horizontal scrolling */
+  overflow-y: hidden; /* Prevent vertical overflow */
+  scroll-behavior: smooth; /* Smooth scrolling effect */
+  box-sizing: border-box;
+   /* Hide scrollbar */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+.video-gallery-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* On large screens, align with section titles */
+@media (min-width: 1200px) {
+  .video-gallery-container {
+    margin-left: calc((100% - 1150px) / 2 + 20px);
+    margin-right: 0;
+    max-width: calc(1150px - 20px);
+    padding: 0;
+  }
+}
+
+/* The actual scrolling div holding the videos */
+.video-gallery {
+  display: flex;
+  gap: 15px; /* Space between videos */
+  padding: 0; /* No padding - will align with section boundary */
+  padding-bottom: 15px; /* Add more space at the bottom for captions */
+  box-sizing: border-box;
+  width: max-content; /* Ensure it fits all videos horizontally */
+  margin: 0;
+}
+
+/* Container for each individual video + caption pair */
+.gallery-video-item {
+  flex: 0 0 auto; /* Prevent items from shrinking/growing in the flex context */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px; /* Space between video and caption */
+}
+
+.gallery-video {
+  height: 220px;  /* Set a fixed height for all videos. Adjust this value as desired. */
+  width: auto;    /* Allow width to adjust to maintain original aspect ratio */
+  border-radius: 10px; /* Keep the rounded corners */
+  box-sizing: border-box;
+  background-color: #fff; /* White background */
+  /* Add a box-shadow for the glow/shadow effect */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Individual video captions that move with each video */
+.gallery-video-caption {
+  font-family: 'Exo', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  white-space: nowrap; /* Prevent caption from wrapping */
+  padding: 4px 8px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles for the navigation buttons */
+.gallery-nav {
+  background-color: rgba(40, 40, 40, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  margin: 0 5px;
+  flex-shrink: 0;
+  line-height: 1;
+  padding: 0;
+  text-align: center;
+}
+.gallery-nav:hover {
+    background-color: rgba(0, 0, 0, 1);
+}
+
+/* Container for the navigation buttons */
+.gallery-nav-controls {
+    display: flex;
+    align-items: center;
+    margin-right: 15px; /* Add space between buttons and caption text */
+}
+
+/* Container to center the gallery caption and buttons */
+.gallery-caption-container {
+    max-width: 1150px; /* Match section width */
+    margin: 15px auto 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+    display: flex; /* Make it a flex container */
+    align-items: center; /* Vertically center buttons and text */
+}
+
+/* On large screens, align with section titles */
+@media (min-width: 1200px) {
+  .gallery-caption-container {
+    margin-left: calc((100% - 1150px) / 2 + 20px);
+    margin-right: auto;
+  }
+}
+
+/* Specific style adjustments for the gallery caption text */
+.figure-caption.gallery-caption {
+    margin-bottom: 0;
+    margin-top: 0;
+    text-align: justify;
+    flex: 1; /* Allow caption to take remaining space */
+}
+
+/* On large screens, add right margin to caption text */
+@media (min-width: 1200px) {
+  .figure-caption.gallery-caption {
+    margin-right: calc((100% - 1150px) / 2 + 170px);
+  }
+}
+
+/* Justify align all figure captions */
+.figure-caption {
+    text-align: justify !important;
+}
+
+/* Responsive styles for non-gallery figure captions (Generalization #1, #4, #5, #7, #9) */
+.figure-caption.non-gallery-caption {
+    margin-top: 10px;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: calc(1150px - 310px);
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* On large screens, use the symmetric margins */
+@media (min-width: 1200px) {
+  .figure-caption.non-gallery-caption {
+    width: calc(1150px - 310px);
+    margin-left: calc((100% - 1150px) / 2 + 155px);
+    margin-right: calc((100% - 1150px) / 2 + 155px);
+    padding: 0;
+  }
+}
+/* --- End Video Gallery Styles --- */
+
+/* --- Object Card Grid --- */
+.object-card-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  max-width: 960px;
+  margin: 20px auto 0;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .object-card-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+}
+
+.object-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.object-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.object-card.active {
+  border-color: #0775F7;
+  background: rgba(7, 117, 247, 0.06);
+  box-shadow: 0 0 0 1px #0775F7, 0 4px 14px rgba(7, 117, 247, 0.2);
+}
+
+.object-card span {
+  font-family: 'Computer Modern Typewriter', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.object-card.active span {
+  color: #0775F7;
+}
+
+/* Text-only variant: compact pill-shaped cards in a single row. */
+.object-card-grid--text {
+  max-width: 1200px;
+  gap: 10px;
+}
+.object-card-grid--text .object-card {
+  padding: 10px 8px;
+  min-height: 44px;
+  justify-content: center;
+}
+.object-card-grid--text .object-card span {
+  font-size: 12px;
+}
+@media (max-width: 768px) {
+  .object-card-grid--text {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+/* --- End Object Card Grid --- */
+/* =================================================================
+   PIPELINE STAGE STRIP (Whole Pipeline section)
+   Three stages above the clip; the one matching the current playback
+   time is highlighted, the other two stay dim.
+   ================================================================= */
+.pipeline-stages {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 auto 14px;
+}
+
+.pipeline-stage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border: 1.5px solid #e2e2e2;
+  border-radius: 10px;
+  background: #fafafa;
+  color: #9a9a9a;
+  font-weight: 600;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: color .25s ease, border-color .25s ease,
+              background-color .25s ease, box-shadow .25s ease;
+}
+
+.pipeline-stage .pipeline-stage-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.65em;
+  height: 1.65em;
+  border-radius: 50%;
+  background: #e2e2e2;
+  color: #fff;
+  font-size: .85em;
+  font-weight: 700;
+  transition: background-color .25s ease;
+}
+
+.pipeline-stage.is-done {
+  color: #666;
+  border-color: #d6d6d6;
+}
+.pipeline-stage.is-done .pipeline-stage-num { background: #b8b8b8; }
+
+.pipeline-stage.is-active {
+  color: #0775F7;
+  border-color: #0775F7;
+  background: rgba(7, 117, 247, 0.08);
+  box-shadow: 0 4px 12px rgba(7, 117, 247, 0.18);
+}
+.pipeline-stage.is-active .pipeline-stage-num { background: #0775F7; }
+
+.pipeline-stage-arrow {
+  display: flex;
+  align-items: center;
+  color: #c8c8c8;
+  font-size: 1.3rem;
+  font-weight: 700;
+  user-select: none;
+}
+
+@media (max-width: 768px) {
+  .pipeline-stages { gap: 6px; }
+  .pipeline-stage { padding: 8px 12px; font-size: .9rem; gap: 7px; }
+  .pipeline-stage-arrow { font-size: 1rem; }
+}
+
+/* ---- Reward design: equation term <-> explanation cross-highlighting ---- */
+
+/* A \class{rw-term rw-<key>}{...} group inside the main reward equation.
+   Only colours change on hover: padding would reflow the equation, so the
+   padded look comes from a box-shadow spread instead. */
+.rw-term {
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background-color .2s ease, box-shadow .2s ease, color .2s ease;
+}
+
+.rw-term.is-active {
+  color: #0775F7;
+  background: rgba(7, 117, 247, 0.10);
+  box-shadow: 0 0 0 5px rgba(7, 117, 247, 0.10);
+}
+
+/* The paragraphs explaining one term. */
+.reward-block {
+  padding: 0.5rem 1rem;
+  margin: 0 0 0.75rem -1rem;
+  border-left: 3px solid transparent;
+  border-radius: 4px;
+  transition: background-color .2s ease, border-color .2s ease;
+}
+
+.reward-block.is-active {
+  border-left-color: #0775F7;
+  background: rgba(7, 117, 247, 0.06);
+}
+
+.reward-block > p:last-child { margin-bottom: 0; }
+
+@media (max-width: 768px) {
+  .reward-block { padding: 0.5rem 0.75rem; margin-left: 0; }
+}
