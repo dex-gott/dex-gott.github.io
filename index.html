@@ -20,54 +20,6 @@
   <link rel="stylesheet" href="./static/css/bulma.min.css">
   <link rel="stylesheet" href="./static/css/index.css">
 
-  <!-- MathJax for the reward equations -->
-  <script>
-    // Links each \class{rw-term rw-<key>}{...} group of the main reward equation
-    // to the <div class="reward-block" id="rw-<key>"> that explains it.
-    function initRewardHighlight() {
-      const terms = document.querySelectorAll('.rw-term');
-      terms.forEach(function (term) {
-        // MathJax mirrors the classes into its hidden assistive-MathML copy; skip it.
-        if (term.closest('mjx-assistive-mml')) return;
-
-        const key = Array.from(term.classList).find(function (c) {
-          return c.startsWith('rw-') && c !== 'rw-term';
-        });
-        const block = key && document.getElementById(key);
-        if (!block) return;
-
-        const setActive = function (on) {
-          term.classList.toggle('is-active', on);
-          block.classList.toggle('is-active', on);
-        };
-        term.addEventListener('mouseenter', function () { setActive(true); });
-        term.addEventListener('mouseleave', function () { setActive(false); });
-        block.addEventListener('mouseenter', function () { setActive(true); });
-        block.addEventListener('mouseleave', function () { setActive(false); });
-
-        // Clicking a term jumps to its explanation.
-        term.addEventListener('click', function () {
-          block.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
-      });
-    }
-
-    window.MathJax = {
-      loader: { load: ['[tex]/html'] },
-      tex: {
-        packages: { '[+]': ['html'] },
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']]
-      },
-      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] },
-      startup: {
-        pageReady: function () {
-          return MathJax.startup.defaultPageReady().then(initRewardHighlight);
-        }
-      }
-    };
-  </script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 
 <body>
@@ -95,6 +47,21 @@
       <h1 class="subtitle is-1 publication-title is-size-4-mobile" style="font-size: 4rem; color: #ffffff;">
         Object-centric Dexterous Manipulation with <br> a Reusable Cross-Embodiment Primitive
       </h1>
+      <div class="publication-authors hero-authors">
+        <span class="author-block">Yulin Liu<sup>1,2</sup></span>
+        <span class="author-block">Lai Wei<sup>1,3</sup></span>
+        <span class="author-block">Yen-Jen Wang<sup>1,4</sup></span>
+        <span class="author-block">Akash Sharma<sup>1</sup></span>
+        <span class="author-block">Pieter Abbeel<sup>1,4</sup></span>
+        <span class="author-block">Henrik I. Christensen<sup>2</sup></span>
+        <span class="author-block">Haozhi Qi<sup>1,3</sup></span>
+      </div>
+      <div class="publication-authors hero-affiliations">
+        <span class="author-block"><sup>1</sup>Amazon FAR</span>
+        <span class="author-block"><sup>2</sup>UC San Diego</span>
+        <span class="author-block"><sup>3</sup>UChicago</span>
+        <span class="author-block"><sup>4</sup>UC Berkeley</span>
+      </div>
       <div class="publication-links" style="margin-top: 1.5rem;">
         <!-- TODO: replace the placeholder hrefs below -->
         <a href="#" target="_blank" rel="noopener" class="hero-link-button">
@@ -103,11 +70,11 @@
         </a>
         <a href="#" target="_blank" rel="noopener" class="hero-link-button">
           <span class="icon"><i class="ai ai-arxiv"></i></span>
-          <span>arXiv</span>
+          <span>arXiv (Coming Soon)</span>
         </a>
         <a href="#" target="_blank" rel="noopener" class="hero-link-button">
           <span class="icon"><i class="fab fa-github"></i></span>
-          <span>Code</span>
+          <span>Code (Coming Soon)</span>
         </a>
       </div>
     </div>
@@ -138,7 +105,6 @@
       <li><a href="#closed-loop-robustness">Closed-Loop Robustness</a></li>
       <li><a href="#allegro-v5-transfer">Allegro V5 Transfer</a></li>
       <li><a href="#abstract">Abstract</a></li>
-      <li><a href="#reward-design">Reward Design</a></li>
     </ul>
   </div>
   <span id="main-title" style="display:none;"></span>
@@ -150,6 +116,24 @@
     <div class="columns is-centered">
       <div class="column is-full-width">
         <h2 class="title is-2" style="text-align: left; padding-bottom: 10px;">Whole Pipeline</h2>
+
+        <div class="content pipeline-explanation" style="max-width: 1000px; margin: 20px auto; padding: 0 20px; line-height: 1.7;">
+          <p>
+            GOTT connects high-level manipulation intent to robot execution through <b>Reach &rarr; Acquire &rarr; Move</b>.
+          </p>
+          <dl class="method-steps">
+            <dt>Reach:</dt>
+            <dd>Follow a reach specification to bring the hand near a task-relevant contact region.</dd>
+            <dt>Acquire:</dt>
+            <dd>Use the shared closed-loop contact-acquisition primitive to establish stable contact from this approximate initialization.</dd>
+            <dt>Move:</dt>
+            <dd>Track the desired object trajectory with a pose-conditioned controller.</dd>
+          </dl>
+          <p>
+            The video below shows the full application workflow, from a human demonstration to robot execution.
+            <br>Reach, acquire, and move take place within the robot-execution stage.
+          </p>
+        </div>
 
         <div style="max-width: 1000px; margin: 20px auto 0; text-align: center;">
 
@@ -166,7 +150,7 @@
         </div>
 
         <p class="figure-caption non-gallery-caption">
-          <b>Whole Pipeline:</b> An end-to-end run of GOTT on the ironing task, from object-trajectory generation to closed-loop dexterous execution.
+          <b>Whole Pipeline:</b> A human demonstration provides the desired object motion for ironing. GOTT reaches a task-relevant contact region, establishes stable contact with its reusable primitive, and tracks the object trajectory to execute the task.
         </p>
 
       </div>
@@ -199,7 +183,7 @@
         </div>
 
         <p class="figure-caption non-gallery-caption">
-          <b>Variable Trajectory Source:</b> The object trajectory that drives GOTT can come from any source &mdash; a generative model, a human demonstration, or keypoint-based motion planning &mdash; and the same pipeline executes it without any adaption.
+          <b>Variable Trajectory Source:</b> The desired object trajectory specifies how the object should move; a reach specification guides the hand toward a task-relevant contact region. These inputs can come from different sources. The videos illustrate trajectories from a generative model, a human demonstration, and keypoint-based planning. Across these sources, the contact-acquisition primitive and tracking backend remain unchanged.
         </p>
 
       </div>
@@ -247,7 +231,7 @@
         </div>
 
         <p class="figure-caption non-gallery-caption">
-          <b>Autonomous Dexterous Manipulation Tasks:</b> GOTT executes a diverse set of dexterous tasks &mdash; whiteboard erasing, ironing, pouring, standing objects upright, and tool use &mdash; from a single object-trajectory interface.
+          <b>Autonomous Dexterous Manipulation Tasks:</b> GOTT reuses the same contact-acquisition primitive for whiteboard erasing, ironing, pouring, standing objects upright, and tool use. Each task supplies a desired object trajectory and a task-relevant reach specification; the primitive establishes contact before the tracking controller executes the object motion.
         </p>
 
       </div>
@@ -298,7 +282,7 @@
                   <button class="gallery-nav right" id="scrollRightBtnObject1">&gt;</button>
               </div>
               <p class="figure-caption gallery-caption">
-                  <b>Cross-embodiment zero-shot grasping:</b> The same policy grasps each object across three hand–arm embodiments without any per-embodiment retraining.
+                  <b>Cross-embodiment zero-shot grasping:</b> A single contact-acquisition policy is shared by Sharpa Hand and XHand across Franka and Tianji arms. Select an object to compare grasping across the three arm&ndash;hand combinations, without per-embodiment retraining.
               </p>
           </div>
         </div>
@@ -333,7 +317,7 @@
         </div>
 
         <p class="figure-caption" style="text-align: center; margin-top: 14px;">
-            <b>Closed-loop policy robustness:</b> The policy recovers after a failed grasp (left) and remains stable under human disturbance (right).
+            <b>Closed-loop policy robustness:</b> The contact-acquisition primitive uses feedback to adjust hand motion as contact evolves. It retries after a failed grasp (left) and responds to human disturbance to maintain stable contact (right).
         </p>
       </div>
     </div>
@@ -365,8 +349,8 @@
         </div>
 
         <p class="figure-caption" style="text-align: center; margin-top: 14px;">
-            <b>Zero-shot transfer to Allegro V5:</b> Our policy generalizes to a new hand for both pick-and-place (left) and grasping (right) without any retraining.
-            <br><em>Note: the policy is trained on Sharpa Hand, XHand, Allegro V4, not including Allegro V5.</em>
+            <b>Zero-shot transfer to Allegro V5:</b> The contact-acquisition primitive transfers to an unseen hand morphology without retraining, supporting pick-and-place (left) and grasping (right).
+            <br><em>Training hands: Sharpa Hand, XHand, and Allegro V4. Test hand: Allegro V5, which is excluded from training.</em>
         </p>
       </div>
     </div>
@@ -382,161 +366,8 @@
       <div class="column is-four-fifths">
         <div class="content has-text-justified">
           <p>
-            Foundation models and large-scale human data provide rich sources of manipulation intent, but translating this intent into multi-fingered robot motion remains difficult. A key bottleneck is the lack of general-purpose low-level skills for dexterous hands, which must coordinate high-dimensional actions and establish reliable contact across tasks and embodiments. In this paper, we propose General Object Trajectory Tracking (<span style="color: #0775F7; font-weight: 600;">GOTT</span>), a framework that uses the object trajectory as a robot-agnostic interface for dexterous manipulation. Given a rigid object mesh and a desired object motion, <span style="color: #0775F7; font-weight: 600;">GOTT</span> converts it into executable robot behavior through three stages: future-aware motion planning, learned contact acquisition, and object-pose-conditioned end-effector tracking. This decomposition allows the system to reason about long-horizon kinematic feasibility while using a unified contact acquisition controller to handle the contact-rich transition from init grasp to stable grasp. We evaluate <span style="color: #0775F7; font-weight: 600;">GOTT</span> in simulation and real-world experiments across multiple hands, objects, and tasks. We show that <span style="color: #0775F7; font-weight: 600;">GOTT</span> can execute diverse dexterous manipulation behaviors, including object picking across hand embodiments, tool use, pouring, whiteboard erasing, and trash cleanup.
+            Foundation models and large-scale human data provide rich sources of manipulation intent, but translating this intent into multi-fingered robot behavior remains difficult. Dexterous hands still lack a <strong>reusable</strong> low-level primitive that reliably establishes contact across tasks and embodiments. We propose <span style="color: #0775F7; font-weight: 600;">GOTT</span>, a <em>reach-acquire-move</em> framework built around a single cross-embodiment contact-acquisition primitive. Given a robot-agnostic object trajectory and a reach specification, <span style="color: #0775F7; font-weight: 600;">GOTT</span> first brings the hand near a task-relevant contact region. The shared closed-loop primitive then establishes stable contact from this approximate initialization, and a pose-conditioned controller tracks the desired object motion. Reach specifications may come from future-aware planning, external models, or human demonstrations, while the primitive and tracking backend remain unchanged. Simulation and real-world experiments show that <span style="color: #0775F7; font-weight: 600;">GOTT</span> is able to establish robust contact across diverse objects, arm-hand platforms, and seen and unseen hand morphologies. It also consistently improves end-to-end task success over open-loop grasp execution.
           </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<section class="section" id="reward-design">
-  <div class="container">
-    <!-- Reward design. -->
-    <h2 class="title is-2" style="text-align: left;" id="reward-design-title">Reward Design</h2>
-    <div class="columns is-centered">
-      <div class="column is-four-fifths">
-        <div class="content has-text-justified">
-          <p>
-            The per-step reward used to train the contact-acquisition controller is: <i>(click each term for more details!)</i>
-          </p>
-          <div style="overflow-x: auto; overflow-y: hidden;">
-            \[
-              r \;=\; \class{rw-term rw-dist}{\underbrace{w_d\,r_{\mathrm{dist}}}_{\textstyle\text{distance}}}
-                \;+\; \class{rw-term rw-contact}{\underbrace{w_c\,r_{\mathrm{contact}}}_{\textstyle\text{contact}}}
-                \;+\; \class{rw-term rw-lift}{\underbrace{w_l\,r_{\mathrm{lift}}}_{\textstyle\text{lifting}}}
-                \;+\; \class{rw-term rw-obj}{\underbrace{w_o^{p}\,r^{p}_{\mathrm{obj}} + w_o^{r}\,r^{r}_{\mathrm{obj}}}_{\textstyle\text{object stability}}},
-            \]
-          </div>
-          <p>
-            where all rotation distances $\Delta\theta$ are the geodesic quaternion angle
-            $\Delta\theta = 2\arccos(|\langle q_1, q_2\rangle|)$. Reward weights are listed in the table below.
-          </p>
-
-          <div class="reward-block" id="rw-dist">
-          <p>
-            <strong>Distance reward $r_{\mathrm{dist}}$.</strong> A negative weighted sum of per-link link-to-surface
-            distances, each clipped at $0.1$&nbsp;m:
-          </p>
-          \[
-            r_{\mathrm{dist}} = -\sum_{l} \omega_l \, \min\!\big(\lVert \mathbf{a}_l \rVert,\, 0.1\big),
-          \]
-          <p>
-            with per-link weights assigned in raw form as $\omega_{\text{thumb-tip}} = 8$,
-            $\omega_{\text{other fingertips}} = 4$, $\omega_{\text{palm}} = 0$, and $\omega_l = 1$ for all remaining
-            links, then normalised to sum to $1$ over the active links. In cross-embodiment the weights are masked to
-            active links and re-normalised per environment. The link-to-surface distance $\lVert \mathbf{a}_l \rVert$ is
-            defined as follows: for each canonical link $l$ at world position $\mathbf{p}_l$, $\mathbf{a}_l$ is the
-            vector to its nearest point on the object's surface point cloud (the $\arg\min$ over $M = 512$ sampled
-            points), and $\lVert \mathbf{a}_l \rVert$ is the $L2$ norm. The point cloud is stored object-local and
-            transformed to world with the tracked object pose.
-          </p>
-          </div>
-
-          <div class="reward-block" id="rw-contact">
-          <p>
-            <strong>Contact reward $r_{\mathrm{contact}}$.</strong> Encourages both thumb contact and an opposing grasp,
-            in which the thumb and at least one non-thumb finger simultaneously contact the object:
-          </p>
-          \[
-            r_{\mathrm{contact}} = \mathbf{1}[\text{thumb in contact}] + \mathbf{1}[\text{is_grasping}],
-          \]
-          <p>
-            where a finger is considered to be &ldquo;in contact&rdquo; if its contact force with the object exceeds a
-            threshold $\epsilon_{\mathrm{contact}} = 0.05$&nbsp;N, and
-            $\text{is_grasping} = (\text{thumb in contact}) \wedge (\exists\,\text{non-thumb in contact})$.
-          </p>
-          </div>
-
-          <div class="reward-block" id="rw-lift">
-          <p>
-            <strong>Lifting reward $r_{\mathrm{lift}}$.</strong> A grasp-gated, scaled reward proportional to the
-            object's height above its post-reset position:
-          </p>
-          \[
-            r_{\mathrm{lift}} = \mathbf{1}[\text{is_grasping}] \cdot \mathrm{clip}\!\big(100\,\Delta h,\ 0,\ 100\,h_{\mathrm{thr}}\big),
-            \quad \Delta h = \max(0,\ z - z_0),
-          \]
-          <p>
-            where $z$ is the object's current height, $z_0$ is its height immediately after reset, and
-            $h_{\mathrm{thr}} = 0.05$&nbsp;m (so the clip ceiling is $5.0$). The reward is gated by
-            $\mathbf{1}[\text{is\_grasping}]$, ensuring that the policy only earns lifting reward once the object is
-            actually grasped, and is clipped to prevent runaway reward when the object is thrown upward.
-          </p>
-          </div>
-
-          <div class="reward-block" id="rw-obj">
-          <p>
-            <strong>Object stability reward $r_{\mathrm{obj}}$.</strong> Exponential &ldquo;stay-put&rdquo; bonuses on
-            planar displacement and rotation from the post-reset pose:
-          </p>
-          \[
-            r^{p}_{\mathrm{obj}} = e^{-10\,\lVert \Delta \mathbf{xy} \rVert},
-            \qquad
-            r^{r}_{\mathrm{obj}} = e^{-\Delta\theta(\mathbf{q}, \mathbf{q}_0)},
-          \]
-          <p>
-            where $\Delta \mathbf{xy} \in \mathbb{R}^2$ is the planar displacement between the object's current $xy$
-            position and its post-reset position, and $\Delta\theta(\mathbf{q}, \mathbf{q}_0)$ is the rotation angle
-            between the object's current orientation $\mathbf{q}$ and its post-reset orientation $\mathbf{q}_0$. These
-            rewards discourage the policy from sliding or rotating the object during the contact-acquisition phase,
-            which we found is important for stable real-world execution.
-          </p>
-          </div>
-
-          <p>
-            <strong>Curriculum / annealing.</strong> The object-stability weights are linearly annealed from an initial
-            value to the final value over $T_{\mathrm{cur}}$ per-environment control steps:
-            $w(t) = w_{\mathrm{init}}(1 - \rho) + w_{\mathrm{final}}\,\rho$, $\rho = \min(1,\ t / T_{\mathrm{cur}})$.
-            We anneal $w_o^{p}, w_o^{r}$ from $w_{\mathrm{init}} = 2.0$ to $w_{\mathrm{final}} = 10.0$ over
-            $T_{\mathrm{cur}} = 10^5$ steps. The distance, contact, and lifting weights are not annealed.
-          </p>
-        </div>
-
-        <div class="content" style="margin-top: 2.5rem;">
-          <p class="has-text-centered" style="margin-bottom: 0.75rem;"><strong>Table 1: Reward weights.</strong></p>
-          <div class="table-container">
-            <table class="table is-fullwidth is-hoverable" style="max-width: 640px; margin: 0 auto;">
-              <thead>
-                <tr>
-                  <th>Symbol</th>
-                  <th>Term</th>
-                  <th class="has-text-centered">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>$w_d$</td>
-                  <td>distance</td>
-                  <td class="has-text-centered">$16.0$</td>
-                </tr>
-                <tr>
-                  <td>$w_c$</td>
-                  <td>contact</td>
-                  <td class="has-text-centered">$4.0$</td>
-                </tr>
-                <tr>
-                  <td>$w_o^{p}$</td>
-                  <td>object position stability</td>
-                  <td class="has-text-centered">$10.0$ (init. $2.0$)</td>
-                </tr>
-                <tr>
-                  <td>$w_o^{r}$</td>
-                  <td>object rotation stability</td>
-                  <td class="has-text-centered">$10.0$ (init. $2.0$)</td>
-                </tr>
-                <tr>
-                  <td>$w_l$</td>
-                  <td>lifting</td>
-                  <td class="has-text-centered">$1.0$</td>
-                </tr>
-                <tr>
-                  <td>$T_{\mathrm{cur}}$</td>
-                  <td>annealing steps</td>
-                  <td class="has-text-centered">$10^5$</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
       </div>
     </div>

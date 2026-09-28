@@ -166,6 +166,39 @@ body {
   display: inline-block;
 }
 
+.hero-authors,
+.hero-affiliations {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem 1.25rem;
+  color: #ffffff;
+  line-height: 1.8;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero-authors {
+  margin-top: 1.5rem;
+  font-size: clamp(1rem, 1.6vw, 1.4rem);
+  font-weight: 500;
+}
+
+.hero-affiliations {
+  margin-top: 0.6rem;
+  font-size: clamp(0.9rem, 1.3vw, 1.15rem);
+}
+
+.hero-authors .author-block,
+.hero-affiliations .author-block {
+  white-space: nowrap;
+}
+
+.hero-authors sup,
+.hero-affiliations sup {
+  font-size: 0.7em;
+  margin: 0 0.15em;
+}
+
 /* Author names sit on the dark video hero, so the default blue link colour is
    too low-contrast there. */
 .publication-authors a.author-link {
@@ -604,39 +637,69 @@ transition: opacity 1.0s;
   .pipeline-stage-arrow { font-size: 1rem; }
 }
 
-/* ---- Reward design: equation term <-> explanation cross-highlighting ---- */
-
-/* A \class{rw-term rw-<key>}{...} group inside the main reward equation.
-   Only colours change on hover: padding would reflow the equation, so the
-   padded look comes from a box-shadow spread instead. */
-.rw-term {
-  cursor: pointer;
-  border-radius: 3px;
-  transition: background-color .2s ease, box-shadow .2s ease, color .2s ease;
+.pipeline-explanation p {
+  text-align: left;
 }
 
-.rw-term.is-active {
-  color: #0775F7;
-  background: rgba(7, 117, 247, 0.10);
-  box-shadow: 0 0 0 5px rgba(7, 117, 247, 0.10);
+.content .method-steps {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  column-gap: 1rem;
+  row-gap: 0.65rem;
+  margin: 1rem 0 1.25rem;
+  text-align: left;
 }
 
-/* The paragraphs explaining one term. */
-.reward-block {
-  padding: 0.5rem 1rem;
-  margin: 0 0 0.75rem -1rem;
-  border-left: 3px solid transparent;
-  border-radius: 4px;
-  transition: background-color .2s ease, border-color .2s ease;
+.content .method-steps dt {
+  font-weight: 700;
 }
 
-.reward-block.is-active {
-  border-left-color: #0775F7;
-  background: rgba(7, 117, 247, 0.06);
+.content .method-steps dd {
+  margin: 0;
 }
-
-.reward-block > p:last-child { margin-bottom: 0; }
 
 @media (max-width: 768px) {
-  .reward-block { padding: 0.5rem 0.75rem; margin-left: 0; }
+  .content .method-steps {
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    column-gap: 0.65rem;
+  }
+}
+
+/* Demo spotlight: enlarge the hovered video and fade its section peers.
+   The background teaser is outside .section and remains unaffected. */
+@media (hover: hover) and (pointer: fine) {
+  .section video {
+    position: relative;
+    transition: transform 280ms ease, opacity 280ms ease, box-shadow 280ms ease;
+    transform-origin: center;
+  }
+
+  .section video:hover {
+    transform: scale(1.06);
+    z-index: 20;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.28) !important;
+  }
+
+  .section:has(video:hover) video:not(:hover):not(:fullscreen) {
+    opacity: 0.45;
+  }
+
+  /* Give the scrollable gallery room for the enlarged top and bottom edges.
+     Negative margins preserve its original spacing in the page. */
+  .video-gallery-container {
+    padding-top: 18px;
+    padding-bottom: 18px;
+    margin-top: -18px;
+    margin-bottom: -18px;
+  }
+
+  .gallery-video-item:first-child video { transform-origin: left center; }
+  .gallery-video-item:last-child video { transform-origin: right center; }
+
+  .section video:fullscreen { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section video { transition: none; }
+  .section video:hover { transform: none; }
 }
